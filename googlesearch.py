@@ -1,8 +1,10 @@
 '''
 Created on May 5, 2017
 
+@url https://github.com/anthonyhseb/googlesearch
 @author: anthony
 '''
+
 import urllib2
 import math
 import re
@@ -13,7 +15,23 @@ from collections import deque
 from time import sleep
         
 class GoogleSearch:
-    USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/ 58.0.3029.81 Safari/537.36"
+
+
+	# SET VARIABLES
+    
+    # Set fake user agent
+    try:
+	    from fake_useragent import UserAgent
+	    USER_AGENT = UserAgent().random
+	    #print USER_AGENT
+    except:
+	    print ("Warn : Missing libary; assign static user agent. To install fake user agent library, try command :  \n pip install fake-useragent")
+	    USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/ 58.0.3029.81 Safari/537.36"
+	    pass
+
+	# Set proxy host address
+    PROXY_IP = "5.196.218.190" 
+
     SEARCH_URL = "https://google.com/search"
     RESULT_SELECTOR = ".srg h3.r a"
     TOTAL_SELECTOR = "#resultStats"
@@ -30,9 +48,17 @@ class GoogleSearch:
         total = None;
         for i in range(pages) :
             start = i * GoogleSearch.RESULTS_PER_PAGE
-            opener = urllib2.build_opener()
+
+
+			###### Run Proxy
+            proxy = urllib2.ProxyHandler({'http': GoogleSearch.PROXY_IP})
+            opener = urllib2.build_opener(proxy)
             opener.addheaders = GoogleSearch.DEFAULT_HEADERS
+            urllib2.install_opener(opener)
+
             response = opener.open(GoogleSearch.SEARCH_URL + "?q="+ urllib2.quote(query) + "&hl=" + language + ("" if start == 0 else ("&start=" + str(start))))
+
+            #print response.fp._sock.fp._sock.getpeername()
             soup = BeautifulSoup(response.read(), "lxml")
             response.close()
             if total is None:
@@ -81,6 +107,7 @@ class SearchResult:
     
     def getText(self):
         if self.__text is None:
+            print (self.getMarkup())
             soup = BeautifulSoup(self.getMarkup(), "lxml")
             for junk in soup(["script", "style"]):
                 junk.extract()
