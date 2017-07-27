@@ -58,7 +58,7 @@ class GoogleSearch:
 
             response = opener.open(GoogleSearch.SEARCH_URL + "?q="+ urllib2.quote(query) + "&hl=" + language + ("" if start == 0 else ("&start=" + str(start))))
 
-            #print response.fp._sock.fp._sock.getpeername()
+            #print response.fp._sock.fp._sock.getpeername() # print used ip 
             soup = BeautifulSoup(response.read(), "lxml")
             response.close()
             if total is None:
@@ -107,7 +107,6 @@ class SearchResult:
     
     def getText(self):
         if self.__text is None:
-            print (self.getMarkup())
             soup = BeautifulSoup(self.getMarkup(), "lxml")
             for junk in soup(["script", "style"]):
                 junk.extract()
