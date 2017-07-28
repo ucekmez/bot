@@ -9,21 +9,6 @@ sys.setdefaultencoding('utf8')
 from googlesearch import GoogleSearch
 
 
-############ helper functions
-def get_source(link, which=None):
-    for source in sources:
-        if source['page'] in link:
-            if which == "case":
-                return source['case']
-            else:
-                return source
-        else :
-          return ''
-
-
-############ helper functions
-
-
 '''
   Search google and top links
 
@@ -36,21 +21,19 @@ def get_source(link, which=None):
 def get_urls_from_google(terms):
     url_list = []
 
-    print ('Searching the term : '+str(terms))
-    searches = [GoogleSearch().search(term) for term in terms]
+    print ('Searching the term : '+term)
+    response = GoogleSearch().search(term)
 
-
-    for response in searches:
-        for result in response.results: 
-            if len(url_list) < LIMIT: # Get top link which limited
-                url_list.append(result.url)
-            else :		
-                pass
+    for result in response.results:
+        if len(url_list) < LIMIT: # Get top link which limited
+            url_list.append(result.url)
+        else :
+            pass
 
     if (SHUFFLE) : # shuffle url list
         shuffle(url_list)
     
-    print ('URL pool : '+'\n'.join(url_list))
+    #print ('URL pool : '+'\n'.join(url_list))
 
     if (len(url_list) < 1) : # problem var bazen bos liste geliyor timeout olabilir
         sleep(1000)		
@@ -82,12 +65,12 @@ def parse_eksi_link(url):
     if (SHUFFLE) : 
         shuffle(entries)
 
-    best_entry = ''
-    for entry in entries[0]: # Get first entry 
-        best_entry = entry
+    best_entries = []
+    for entry in entries[0:ENTRY_NUMBER]: # Get first entry
+        best_entries.append(entry[0])
 
-    print (best_entry)
-    return best_entry
+    print (best_entries)
+    return best_entries
 		
 
 '''
@@ -109,12 +92,12 @@ def parse_uludag_link(url):
     if (SHUFFLE) : 
         shuffle(entries)
 
-    best_entry = ''
-    for entry in entries[0]: # Get first entry 
-        best_entry = entry
+    best_entries = []
+    for entry in entries[0:ENTRY_NUMBER]: # Get first entry
+        best_entries.append(entry[0])
 
-    print (best_entry)
-    return best_entry
+    print (best_entries)
+    return best_entries
 
 
 '''
@@ -136,17 +119,19 @@ def parse_kizlar_link(url):
     if (SHUFFLE) : 
         shuffle(entries)
 
-    best_entry = ''
-    best_entry = entries[0] # Get first entry 
+    best_entries = []
+    for entry in entries[0:ENTRY_NUMBER]: # Get first entry
+        best_entries.append(entry[0])
 
-    print (best_entry)
-    return best_entry
+    print (best_entries)
+    return best_entries
 
 
 if __name__ == "__main__":
 
     SHUFFLE = False # Rastgele secim yapsın
     LIMIT = 5 # google search limit; ilk besi alır
+    ENTRY_NUMBER = 3
     SEARCH_TERM = 'kaktus ve radyasyon'
 
     sources = [{'page': 'eksisozluk', 'suffix': 'site:'+'eksisozluk.com', 'case':'?a=nice'},
@@ -161,12 +146,14 @@ if __name__ == "__main__":
 
         url_list = get_urls_from_google(term)
         if 'eksi' in source['page']:
-            response_set.append(parse_eksi_link(url_list[0]))
+            response_set = response_set + parse_eksi_link(url_list[0])
         if 'uludag' in source['page']:
-            response_set.append(parse_uludag_link(url_list[0]))
-        else:
-            response_set.append(parse_kizlar_link(url_list[0]))
+            response_set = response_set + parse_uludag_link(url_list[0])
+        if 'kizlar' in source['page']:
+            response_set = response_set + parse_kizlar_link(url_list[0])
 		 
-    print ('Sonuclar : '+'\n'.join(response_set))
+    print ('Sonuç : '+'\n'.join(response_set))
+    shuffle(response_set)
+    print ('Best Result  : '+str(response_set[0]))
 
 
