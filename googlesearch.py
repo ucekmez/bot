@@ -30,7 +30,7 @@ class GoogleSearch:
 	    pass
 
 	# Set proxy host address
-    PROXY_IP = "5.196.218.190" 
+    PROXY_IP = "35.188.230.45" 
 
     SEARCH_URL = "https://google.com/search"
     RESULT_SELECTOR = ".srg h3.r a"
